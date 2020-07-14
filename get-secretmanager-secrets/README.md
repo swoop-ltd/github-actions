@@ -39,7 +39,7 @@ later steps.
 ```yaml
 steps:
 - id: secrets
-  uses: GoogleCloudPlatform/github-actions/get-secretmanager-secrets@master
+  uses: swoop-ltd/github-actions/get-secretmanager-secrets@master
   with:
     secrets: |-
       token:my-project/docker-registry-token
@@ -97,7 +97,7 @@ For example:
 ```yaml
 steps:
 - id: secrets
-  uses: GoogleCloudPlatform/github-actions/get-secretmanager-secrets@master
+  uses: swoop-ltd/github-actions/get-secretmanager-secrets@master
   with:
     secrets: |-
       token:my-project/docker-registry-token
@@ -123,10 +123,10 @@ permissions to access the secrets being requested.
 You can provide credentials using the [setup-gcloud][setup-gcloud] action:
 
 ```yaml
-- uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+- uses: swoop-ltd/github-actions/setup-gcloud@master
   with:
     export_default_credentials: true
-- uses: GoogleCloudPlatform/github-actions/get-secretmanager-secrets@master
+- uses: swoop-ltd/github-actions/get-secretmanager-secrets@master
 ```
 
 The advantage of this approach is that it authenticates all future actions. A
@@ -142,7 +142,7 @@ action:
 
 ```yaml
 - id: secrets
-  uses: GoogleCloudPlatform/github-actions/get-secretmanager-secrets@master
+  uses: swoop-ltd/github-actions/get-secretmanager-secrets@master
   with:
     credentials: ${{ secrets.gcp_credentials }}
     secrets: |-
@@ -158,7 +158,7 @@ only works using a custom runner hosted on GCP.**
 
 ```yaml
 - id: secrets
-  uses: GoogleCloudPlatform/github-actions/get-secretmanager-secrets@master
+  uses: swoop-ltd/github-actions/get-secretmanager-secrets@master
 ```
 
 The action will automatically detect and use the Application Default

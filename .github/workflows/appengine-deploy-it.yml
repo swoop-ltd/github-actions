@@ -11,7 +11,7 @@ jobs:
     name: with setup-gcloud
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: swoop-ltd/checkout@v2
     - uses: ./setup-gcloud
       with:
         service_account_key: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
@@ -53,7 +53,7 @@ jobs:
     name: with base64 json creds
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: swoop-ltd/checkout@v2
     - name: create app
       run: |-
         cat <<EOF > ${{ github.workspace }}/app.yaml
@@ -94,7 +94,7 @@ jobs:
     name: with json creds
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: swoop-ltd/checkout@v2
     - name: create app
       run: |-
         cat <<EOF > ${{ github.workspace }}/app.yaml

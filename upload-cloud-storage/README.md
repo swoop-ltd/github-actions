@@ -35,7 +35,7 @@ used in subsequent steps.
 ```yaml
 steps:
   - id: upload-file
-    uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
+    uses: swoop-ltd/github-actions/upload-cloud-storage@master
     with:
       path: /path/to/file
       destination: bucket-name/file
@@ -54,7 +54,7 @@ The file will be uploaded to `gs://bucket-name/file`
 ```yaml
 steps:
   - id: upload-files
-    uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
+    uses: swoop-ltd/github-actions/upload-cloud-storage@master
     with:
       path: /path/to/folder
       destination: bucket-name
@@ -121,7 +121,7 @@ For example:
 ```yaml
 steps:
   - id: upload-file
-    uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
+    uses: swoop-ltd/github-actions/upload-cloud-storage@master
     with:
       path: /path/to/file
       destination: bucket-name/file
@@ -146,11 +146,11 @@ permissions to access the secrets being requested.
 You can provide credentials using the [setup-gcloud][setup-gcloud] action:
 
 ```yaml
-- uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+- uses: swoop-ltd/github-actions/setup-gcloud@master
   with:
     service_account_key: ${{ secrets.GCP_SA_KEY }}
     export_default_credentials: true
-- uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
+- uses: swoop-ltd/github-actions/upload-cloud-storage@master
 ```
 
 The advantage of this approach is that it authenticates all future actions. A
@@ -166,7 +166,7 @@ action:
 
 ```yaml
 - id: upload-file
-  uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
+  uses: swoop-ltd/github-actions/upload-cloud-storage@master
   with:
     credentials: ${{ secrets.gcp_credentials }}
     path: /path/to/folder
@@ -182,7 +182,7 @@ only works using a custom runner hosted on GCP.**
 
 ```yaml
 - id: upload-file
-  uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@master
+  uses: swoop-ltd/github-actions/upload-cloud-storage@master
 ```
 
 The action will automatically detect and use the Application Default

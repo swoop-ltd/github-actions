@@ -19,10 +19,10 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v2
+    - uses: swoop-ltd/checkout@v2
 
     - name: Set Node.js 10.x
-      uses: actions/setup-node@master
+      uses: swoop-ltd/setup-node@master
       with:
         node-version: 10.x
 

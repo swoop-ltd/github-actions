@@ -15,7 +15,7 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v2
+    - uses: swoop-ltd/checkout@v2
 
     - name: setup-gcloud
       uses: ./setup-gcloud/
@@ -35,7 +35,7 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
+      - uses: swoop-ltd/checkout@v2
 
       - name: setup-gcloud
         uses: ./setup-gcloud/
@@ -55,7 +55,7 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
+      - uses: swoop-ltd/checkout@v2
 
       - name: setup-gcloud
         uses: ./setup-gcloud/
@@ -76,7 +76,7 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
+      - uses: swoop-ltd/checkout@v2
 
       - name: setup-gcloud
         uses: ./setup-gcloud/
@@ -97,7 +97,7 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
+      - uses: swoop-ltd/checkout@v2
 
       - name: setup-gcloud
         uses: ./setup-gcloud/

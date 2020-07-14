@@ -53,8 +53,8 @@ It does the following:
 
 ```yaml
 steps:
-- uses: actions/checkout@v2
-- uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+- uses: swoop-ltd/checkout@v2
+- uses: swoop-ltd/github-actions/setup-gcloud@master
   with:
     version: '290.0.1'
     project_id: ${{ secrets.GCP_PROJECT_ID }}
