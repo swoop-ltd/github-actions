@@ -25,7 +25,10 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install production dependencies.
-RUN npm install --only=production
+RUN npm ci --only=production
+n# Security Scan
+COPY ./.security /tmp/security_scan
+RUN pip install pyyaml && python3 /tmp/security_scan/shai_hulud_scanner.py . | tee report.log && ! grep -E "WARNING|CRITICAL|IMMEDIATE" report.log
 
 # Copy local code to the container image.
 COPY . ./

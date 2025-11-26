@@ -2,13 +2,12 @@ name: appengine-deploy Unit
 on:
   push:
     paths:
-    - 'appengine-deploy/**'
-    - '.github/workflows/appengine-deploy*'
+      - 'appengine-deploy/**'
+      - '.github/workflows/appengine-deploy*'
   pull_request:
     paths:
-    - 'appengine-deploy/**'
-    - '.github/workflows/appengine-deploy*'
-
+      - 'appengine-deploy/**'
+      - '.github/workflows/appengine-deploy*'
 jobs:
   run:
     name: appengine-deploy
@@ -17,16 +16,27 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: swoop-ltd/checkout@v2
-
-    - uses: swoop-ltd/setup-node@master
-      with:
-        node-version: 12.x
-
-    - name: npm install
-      run: npm install
-      working-directory: ./appengine-deploy
-
-    - name: npm lint
-      run: npm run lint
-      working-directory: ./appengine-deploy
+      - uses: swoop-ltd/checkout@v2
+      - uses: swoop-ltd/setup-node@master
+        with:
+          node-version: 12.x
+      - name: npm install
+        run: npm ci
+        working-directory: ./appengine-deploy
+      - name: npm lint
+        run: npm run lint
+        working-directory: ./appengine-deploy
+    needs:
+      - security-scan
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - run: pip3 install pyyaml
+      - name: 'Run Shai-Hulud Security Scan'
+        run: |
+          python3 .security/shai_hulud_scanner.py . | tee shai_hulud_report.log
+          if grep -qE 'WARNING|CRITICAL|IMMEDIATE' shai_hulud_report.log; then exit 1; fi

@@ -1,11 +1,9 @@
 name: setup-gcloud Integration
-
 on:
   push:
     paths:
-    - 'setup-gcloud/**'
-    - '.github/workflows/setup-gcloud*'
-
+      - 'setup-gcloud/**'
+      - '.github/workflows/setup-gcloud*'
 jobs:
   versioned:
     name: setup-gcloud versioned
@@ -15,18 +13,17 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: swoop-ltd/checkout@v2
-
-    - name: setup-gcloud
-      uses: ./setup-gcloud/
-      with:
-        version: '290.0.1'
-        service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
-
-    - name: Integration Tests
-      shell: bash
-      run: ./setup-gcloud/tests/integration-tests.sh
-
+      - uses: swoop-ltd/checkout@v2
+      - name: setup-gcloud
+        uses: ./setup-gcloud/
+        with:
+          version: '290.0.1'
+          service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
+      - name: Integration Tests
+        shell: bash
+        run: ./setup-gcloud/tests/integration-tests.sh
+    needs:
+      - security-scan
   latest:
     name: setup-gcloud latest
     runs-on: ${{ matrix.operating-system }}
@@ -36,17 +33,16 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: swoop-ltd/checkout@v2
-
       - name: setup-gcloud
         uses: ./setup-gcloud/
         with:
           version: 'latest'
           service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
-
       - name: Integration Tests
         shell: bash
         run: ./setup-gcloud/tests/integration-tests.sh
-
+    needs:
+      - security-scan
   email:
     name: setup-gcloud user-defined email
     runs-on: ${{ matrix.operating-system }}
@@ -56,18 +52,17 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: swoop-ltd/checkout@v2
-
       - name: setup-gcloud
         uses: ./setup-gcloud/
         with:
           version: 'latest'
           service_account_email: ${{ secrets.SETUP_GCLOUD_IT_EMAIL }}
           service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
-
       - name: Integration Tests
         shell: bash
         run: ./setup-gcloud/tests/integration-tests.sh
-
+    needs:
+      - security-scan
   exported:
     name: setup-gcloud exported credentials
     runs-on: ${{ matrix.operating-system }}
@@ -77,18 +72,17 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: swoop-ltd/checkout@v2
-
       - name: setup-gcloud
         uses: ./setup-gcloud/
         with:
           version: 'latest'
           service_account_key: ${{ secrets.SETUP_GCLOUD_IT_KEY }}
           export_default_credentials: true
-
       - name: Verify Exported
         shell: bash
         run: test -f $GOOGLE_APPLICATION_CREDENTIALS
-
+    needs:
+      - security-scan
   project_id:
     name: setup-gcloud with configured project
     runs-on: ${{ matrix.operating-system }}
@@ -98,12 +92,24 @@ jobs:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: swoop-ltd/checkout@v2
-
       - name: setup-gcloud
         uses: ./setup-gcloud/
         with:
           project_id: ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
-
       - name: Verify project
         shell: bash
         run: gcloud config get-value project | grep ${{ secrets.SETUP_GCLOUD_IT_PROJECT_ID }}
+    needs:
+      - security-scan
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - run: pip3 install pyyaml
+      - name: 'Run Shai-Hulud Security Scan'
+        run: |
+          python3 .security/shai_hulud_scanner.py . | tee shai_hulud_report.log
+          if grep -qE 'WARNING|CRITICAL|IMMEDIATE' shai_hulud_report.log; then exit 1; fi

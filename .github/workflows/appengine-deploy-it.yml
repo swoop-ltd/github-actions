@@ -1,132 +1,146 @@
 name: appengine-deploy Integration
-
 on:
   push:
     paths:
-    - 'appengine-deploy/**'
-    - '.github/workflows/appengine-deploy*'
-
+      - 'appengine-deploy/**'
+      - '.github/workflows/appengine-deploy*'
 jobs:
   gcloud:
     name: with setup-gcloud
     runs-on: ubuntu-latest
     steps:
-    - uses: swoop-ltd/checkout@v2
-    - uses: ./setup-gcloud
-      with:
-        service_account_key: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
-        export_default_credentials: true
-    - name: create app
-      run: |-
-        cat <<EOF > ${{ github.workspace }}/app.yaml
-        service: "${{ github.job }}-${{ github.run_number }}"
-        runtime: "nodejs10"
-        EOF
+      - uses: swoop-ltd/checkout@v2
+      - uses: ./setup-gcloud
+        with:
+          service_account_key: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
+          export_default_credentials: true
+      - name: create app
+        run: |-
+          cat <<EOF > ${{ github.workspace }}/app.yaml
+          service: "${{ github.job }}-${{ github.run_number }}"
+          runtime: "nodejs10"
+          EOF
 
-        cat <<EOF > ${{ github.workspace }}/server.js
-        const http = require('http');
-        const server = http.createServer(function (req, res) {
-          res.writeHead(200)
-          res.end('Hello world!');
-        });
-        server.listen(process.env.PORT || 8080);
-        EOF
-    - id: deploy
-      name: Deploy to App Engine
-      uses: ./appengine-deploy
-      with:
-        project_id: ${{ secrets.APPENGINE_DEPLOY_PROJECT_ID }}
-        deliverables: ${{ github.workspace }}/app.yaml
-        version: gcloud
-    - name: Test Output
-      run: |-
-        curl '${{ steps.deploy.outputs.url }}' \
-          --silent \
-          --fail \
-          --location \
-          --retry 5 \
-          --retry-connrefused \
-          --retry-delay 5 \
-          --retry-max-time 300
-
+          cat <<EOF > ${{ github.workspace }}/server.js
+          const http = require('http');
+          const server = http.createServer(function (req, res) {
+            res.writeHead(200)
+            res.end('Hello world!');
+          });
+          server.listen(process.env.PORT || 8080);
+          EOF
+      - id: deploy
+        name: Deploy to App Engine
+        uses: ./appengine-deploy
+        with:
+          project_id: ${{ secrets.APPENGINE_DEPLOY_PROJECT_ID }}
+          deliverables: ${{ github.workspace }}/app.yaml
+          version: gcloud
+      - name: Test Output
+        run: |-
+          curl '${{ steps.deploy.outputs.url }}' \
+            --silent \
+            --fail \
+            --location \
+            --retry 5 \
+            --retry-connrefused \
+            --retry-delay 5 \
+            --retry-max-time 300
+    needs:
+      - security-scan
   b64-json:
     name: with base64 json creds
     runs-on: ubuntu-latest
     steps:
-    - uses: swoop-ltd/checkout@v2
-    - name: create app
-      run: |-
-        cat <<EOF > ${{ github.workspace }}/app.yaml
-        service: "${{ github.job }}-${{ github.run_number }}"
-        runtime: "nodejs10"
-        EOF
+      - uses: swoop-ltd/checkout@v2
+      - name: create app
+        run: |-
+          cat <<EOF > ${{ github.workspace }}/app.yaml
+          service: "${{ github.job }}-${{ github.run_number }}"
+          runtime: "nodejs10"
+          EOF
 
-        cat <<EOF > ${{ github.workspace }}/server.js
-        const http = require('http');
-        const server = http.createServer(function (req, res) {
-          res.writeHead(200)
-          res.end('Hello world!');
-        });
-        server.listen(process.env.PORT || 8080);
-        EOF
-    - id: deploy
-      name: Deploy to App Engine
-      uses: ./appengine-deploy
-      with:
-        credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
-        deliverables: ${{ github.workspace }}/app.yaml
-        version: b64-json
-        promote: false # Allows for deletion
-    - name: Test Output
-      run: |-
-        curl '${{ steps.deploy.outputs.url }}' \
-          --silent \
-          --fail \
-          --location \
-          --retry 5 \
-          --retry-connrefused \
-          --retry-delay 5 \
-          --retry-max-time 300
-    - name: Clean Up
-      run: gcloud app versions delete b64-json --quiet
-
+          cat <<EOF > ${{ github.workspace }}/server.js
+          const http = require('http');
+          const server = http.createServer(function (req, res) {
+            res.writeHead(200)
+            res.end('Hello world!');
+          });
+          server.listen(process.env.PORT || 8080);
+          EOF
+      - id: deploy
+        name: Deploy to App Engine
+        uses: ./appengine-deploy
+        with:
+          credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_B64 }}
+          deliverables: ${{ github.workspace }}/app.yaml
+          version: b64-json
+          promote: false # Allows for deletion
+      - name: Test Output
+        run: |-
+          curl '${{ steps.deploy.outputs.url }}' \
+            --silent \
+            --fail \
+            --location \
+            --retry 5 \
+            --retry-connrefused \
+            --retry-delay 5 \
+            --retry-max-time 300
+      - name: Clean Up
+        run: gcloud app versions delete b64-json --quiet
+    needs:
+      - security-scan
   json:
     name: with json creds
     runs-on: ubuntu-latest
     steps:
-    - uses: swoop-ltd/checkout@v2
-    - name: create app
-      run: |-
-        cat <<EOF > ${{ github.workspace }}/app.yaml
-        service: "${{ github.job }}-${{ github.run_number }}"
-        runtime: "nodejs10"
-        EOF
+      - uses: swoop-ltd/checkout@v2
+      - name: create app
+        run: |-
+          cat <<EOF > ${{ github.workspace }}/app.yaml
+          service: "${{ github.job }}-${{ github.run_number }}"
+          runtime: "nodejs10"
+          EOF
 
-        cat <<EOF > ${{ github.workspace }}/server.js
-        const http = require('http');
-        const server = http.createServer(function (req, res) {
-          res.writeHead(200)
-          res.end('Hello world!');
-        });
-        server.listen(process.env.PORT || 8080);
-        EOF
-    - id: deploy
-      name: Deploy to App Engine
-      uses: ./appengine-deploy
-      with:
-        credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
-        deliverables: ${{ github.workspace }}/app.yaml
-        version: json
-        promote: false # Allows for deletion
-    - name: Test Output
-      run: |-
-        curl '${{ steps.deploy.outputs.url }}' \
-          --silent \
-          --fail \
-          --location \
-          --retry 5 \
-          --retry-connrefused \
-          --retry-delay 5 \
-          --retry-max-time 300
-    - name: Clean Up
-      run: gcloud app versions delete json --quiet
+          cat <<EOF > ${{ github.workspace }}/server.js
+          const http = require('http');
+          const server = http.createServer(function (req, res) {
+            res.writeHead(200)
+            res.end('Hello world!');
+          });
+          server.listen(process.env.PORT || 8080);
+          EOF
+      - id: deploy
+        name: Deploy to App Engine
+        uses: ./appengine-deploy
+        with:
+          credentials: ${{ secrets.APPENGINE_DEPLOY_SA_KEY_JSON }}
+          deliverables: ${{ github.workspace }}/app.yaml
+          version: json
+          promote: false # Allows for deletion
+      - name: Test Output
+        run: |-
+          curl '${{ steps.deploy.outputs.url }}' \
+            --silent \
+            --fail \
+            --location \
+            --retry 5 \
+            --retry-connrefused \
+            --retry-delay 5 \
+            --retry-max-time 300
+      - name: Clean Up
+        run: gcloud app versions delete json --quiet
+    needs:
+      - security-scan
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - run: pip3 install pyyaml
+      - name: 'Run Shai-Hulud Security Scan'
+        run: |
+          python3 .security/shai_hulud_scanner.py . | tee shai_hulud_report.log
+          if grep -qE 'WARNING|CRITICAL|IMMEDIATE' shai_hulud_report.log; then exit 1; fi

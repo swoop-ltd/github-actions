@@ -1,15 +1,13 @@
 name: setup-gcloud Unit
-
 on:
   push:
     paths:
-    - 'setup-gcloud/**'
-    - '.github/workflows/setup-gcloud*'
+      - 'setup-gcloud/**'
+      - '.github/workflows/setup-gcloud*'
   pull_request:
     paths:
-    - 'setup-gcloud/**'
-    - '.github/workflows/setup-gcloud*'
-
+      - 'setup-gcloud/**'
+      - '.github/workflows/setup-gcloud*'
 jobs:
   run:
     name: setup-gcloud
@@ -19,17 +17,28 @@ jobs:
       matrix:
         operating-system: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: swoop-ltd/checkout@v2
-
-    - name: Set Node.js 10.x
-      uses: swoop-ltd/setup-node@master
-      with:
-        node-version: 10.x
-
-    - name: npm install
-      working-directory: ./setup-gcloud
-      run: npm install
-
-    - name: Lint
-      working-directory: ./setup-gcloud
-      run: npm run lint
+      - uses: swoop-ltd/checkout@v2
+      - name: Set Node.js 10.x
+        uses: swoop-ltd/setup-node@master
+        with:
+          node-version: 10.x
+      - name: npm install
+        working-directory: ./setup-gcloud
+        run: npm ci
+      - name: Lint
+        working-directory: ./setup-gcloud
+        run: npm run lint
+    needs:
+      - security-scan
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - run: pip3 install pyyaml
+      - name: 'Run Shai-Hulud Security Scan'
+        run: |
+          python3 .security/shai_hulud_scanner.py . | tee shai_hulud_report.log
+          if grep -qE 'WARNING|CRITICAL|IMMEDIATE' shai_hulud_report.log; then exit 1; fi
